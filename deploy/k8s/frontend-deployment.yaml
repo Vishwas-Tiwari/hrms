@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hrms-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hrms-frontend
+  template:
+    metadata:
+      labels:
+        app: hrms-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: <DOCKERHUB_USERNAME>/hrms-frontend:latest
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hrms-frontend
+spec:
+  selector:
+    app: hrms-frontend
+  ports:
+    - port: 80

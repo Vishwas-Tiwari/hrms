@@ -1,0 +1,37 @@
+body {
+  background: radial-gradient(circle at top, rgba(13, 110, 253, 0.15), transparent 38%),
+              linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  color: #212529;
+  padding-top: 70px;
+}
+
+.login-card {
+  margin-top: 3rem;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+.card .card-body {
+  padding: 1.75rem;
+}
+
+.navbar-brand {
+  letter-spacing: 0.05em;
+}
+
+.table-responsive {
+  min-height: 1px;
+}
+
+.btn-primary {
+  min-width: 140px;
+}
+
+@media (max-width: 767px) {
+  body {
+    padding-top: 120px;
+  }
+}
