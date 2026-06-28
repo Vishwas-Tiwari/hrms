@@ -21,12 +21,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthorities(user));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(), 
+                user.getPassword(), 
+                getAuthorities(user)
+        );
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
-        String role = user.getRole();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
+        // Map the user's position (HR, MANAGER, EMPLOYEE) to Spring Security roles
+        String position = user.getPosition();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + position.toUpperCase()));
     }
 }

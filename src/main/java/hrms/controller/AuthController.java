@@ -1,40 +1,74 @@
 package hrms.controller;
 
-import hrms.dto.UserDTO;
-import hrms.service.AuthService;
-import hrms.service.UserService;
-import lombok.RequiredArgsConstructor;
+import hrms.dto.AuthResponse;
+import hrms.dto.LoginRequest;
+import hrms.dto.RegisterRequest;
+import hrms.entity.User;
+import hrms.repository.UserRepository;
+import hrms.security.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-/**
-// ===========================
-// AUTHENTICATION APIs
-// Used for login and token issuance (JWT)
-// ===========================
- */
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    private final UserService userService;
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
-        hrms.dto.AuthResponse auth = authService.login(req.username(), req.password());
-        return ResponseEntity.ok(auth);
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> register(@RequestBody RegisterRequest req) {
-        UserDTO u = authService.register(req.username(), req.password(), req.role());
-        return ResponseEntity.ok(u);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        // Check if username is already taken
+        if (userRepository.existsByUsername(req.username())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Username is already taken"));
+        }
+
+        // Create and save the new user
+        User user = User.builder()
+                .name(req.name())
+                .username(req.username())
+                .password(passwordEncoder.encode(req.password()))
+                .position(req.position() == null ? "EMPLOYEE" : req.position().toUpperCase())
+                .build();
+
+        userRepository.save(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("message", "Registration successful. Please log in."));
     }
 
-    public static record LoginRequest(String username, String password) {}
-    public static record RegisterRequest(String username, String password, String role) {}
-    public static record AuthResponse(String token) {}
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        // Find user by username
+        User user = userRepository.findByUsername(req.username()).orElse(null);
+
+        // Verify user and password
+        if (user == null || !passwordEncoder.matches(req.password(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Invalid username or password"));
+        }
+
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user.getUsername(), user.getPosition());
+        
+        // Return full authentication details for the React frontend
+        return ResponseEntity.ok(new AuthResponse(
+                token,
+                user.getName(),
+                user.getUsername(),
+                user.getPosition()
+        ));
+    }
 }

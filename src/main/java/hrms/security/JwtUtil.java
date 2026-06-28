@@ -15,10 +15,11 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:VerySecretKeyChangeMe}")
+    // Bulletproof configuration loader: checks your application.yml first, then falls back
+    @Value("${application.security.jwt.secret-key:${jwt.secret:VerySecretKeyChangeMe}}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}")
+    @Value("${application.security.jwt.expiration:${jwt.expiration:86400000}}")
     private Long expirationMs;
 
     public String extractUsername(String token) {
@@ -37,6 +38,12 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
+    }
+
+    public String generateToken(String username, String position) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("position", position);
+        return createToken(claims, username);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

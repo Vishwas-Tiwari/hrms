@@ -3,11 +3,8 @@ package hrms.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-/**
- * User entity for authentication. Links to Employee/Manager via OneToOne.
- */
 @Entity
-@Table(name = "users")
+@Table(name = "users") // Matches the actual database table name used by SQL migrations
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,20 +15,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "role", nullable = false)
+    private String position; // Stored in DB as the 'role' column
+
     @Column(nullable = false)
-    private String role; // EMPLOYEE, MANAGER, ADMIN
-
+    @Builder.Default
     private boolean enabled = true;
-
-    @OneToOne(mappedBy = "user")
-    private Employee employee;
-
-    @OneToOne(mappedBy = "user")
-    private Manager manager;
 }

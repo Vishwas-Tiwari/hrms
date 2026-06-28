@@ -1,10 +1,13 @@
-import React from 'react'
-import { Navigate } from 'react-router-dom'
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-export default function ProtectedRoute({ children, role }){
-  const token = localStorage.getItem('token')
-  const currentRole = localStorage.getItem('role')
-  if (!token) return <Navigate to="/login" replace />
-  if (role && role !== currentRole) return <Navigate to="/login" replace />
-  return children
+export default function ProtectedRoute({ children }) {
+  const token = localStorage.getItem('auth_token');
+  
+  if (!token) {
+    // Redirect to login if there is no token
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
 }

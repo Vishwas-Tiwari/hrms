@@ -3,21 +3,31 @@ package hrms.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "departments")
+@Table(name = "appraisal_cycles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Department {
+public class AppraisalCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(nullable = false)
+    private String title;
+
+    private LocalDate startDate;
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private String status = "ACTIVE";
+
+    private String createdBy;
 
     @Column(nullable = false)
     @Builder.Default

@@ -1,43 +1,48 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React from 'react';
 
-export default function Navbar(){
-  const navigate = useNavigate()
-  const token = localStorage.getItem('token')
-  const role = localStorage.getItem('role')
-
-  const logout = ()=>{
-    localStorage.removeItem('token')
-    localStorage.removeItem('role')
-    navigate('/login')
-  }
-
+export default function Navbar({ user, onLogout }) {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm fixed-top">
-      <div className="container-fluid">
-        <Link className="navbar-brand fw-bold" to="/">NIC HRMS</Link>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon" />
-        </button>
-        <div className="collapse navbar-collapse" id="mainNavbar">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {token && role === 'EMPLOYEE' && <li className="nav-item"><Link className="nav-link" to="/employee">Dashboard</Link></li>}
-            {token && role === 'EMPLOYEE' && <li className="nav-item"><Link className="nav-link" to="/employee/profile">Profile</Link></li>}
-            {token && role === 'EMPLOYEE' && <li className="nav-item"><Link className="nav-link" to="/employee/assessment">Assessment</Link></li>}
-            {token && role === 'EMPLOYEE' && <li className="nav-item"><Link className="nav-link" to="/employee/history">History</Link></li>}
-            {token && role === 'MANAGER' && <li className="nav-item"><Link className="nav-link" to="/manager">Manager</Link></li>}
-            {token && role === 'ADMIN' && <li className="nav-item"><Link className="nav-link" to="/admin">Admin</Link></li>}
-          </ul>
-          <div className="d-flex align-items-center gap-2">
-            {token && role && <span className="badge bg-light text-primary text-uppercase py-2 px-3">{role}</span>}
-            {!token ? (
-              <Link className="btn btn-outline-light btn-sm" to="/login">Login</Link>
-            ) : (
-              <button className="btn btn-light btn-sm" onClick={logout}>Logout</button>
-            )}
-          </div>
-        </div>
+    <nav className="navbar" style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '16px 40px',
+      background: 'hsla(224, 25%, 12%, 0.6)',
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid hsla(225, 20%, 30%, 0.3)',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 100
+    }}>
+      <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.4rem', letterSpacing: '-0.5px' }}>
+        HRMS <span style={{ color: 'var(--primary)', fontWeight: 400 }}>Portal</span>
       </div>
+      {user && (
+        <button 
+          onClick={onLogout}
+          style={{
+            background: 'transparent',
+            border: '1px solid hsla(350, 80%, 60%, 0.4)',
+            color: 'var(--error)',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = 'hsla(350, 80%, 60%, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = 'transparent';
+          }}
+        >
+          Sign Out
+        </button>
+      )}
     </nav>
-  )
+  );
 }
